@@ -4,7 +4,7 @@ import User from "@/models/User";
 
 export const inngest = new Inngest({ id: "quickcart-next" });
 
-// Function to sync user creation
+// Sync user creation
 export const syncUserCreation = inngest.createFunction(
     { id: "sync-user-from-clerk" },
     { event: "clerk/user.created" },
@@ -13,17 +13,25 @@ export const syncUserCreation = inngest.createFunction(
 
         const userData = {
             _id: id,
-            email: email_addresses[0].email_address,
-            name: `${first_name} ${last_name}`,
+            email: email_addresses?.[0]?.email_address ?? "",
+            name: `${first_name ?? ""} ${last_name ?? ""}`.trim(),
             imageUrl: image_url,
         };
 
         await connectDB();
-        await User.create(userData);
+        const existingUser = await User.findById(id);
+        if (!existingUser) {
+            try {
+                await User.create(userData);
+            } catch (err) {
+                console.error("Error creating user:", err);
+                throw err;
+            }
+        }
     }
 );
 
-// Function to sync user update
+// Sync user update
 export const syncUserUpdation = inngest.createFunction(
     { id: "update-user-from-clerk" },
     { event: "clerk/user.updated" },
@@ -31,17 +39,22 @@ export const syncUserUpdation = inngest.createFunction(
         const { id, first_name, last_name, email_addresses, image_url } = event.data;
 
         const userData = {
-            email: email_addresses[0].email_address,
-            name: `${first_name} ${last_name}`,
+            email: email_addresses?.[0]?.email_address ?? "",
+            name: `${first_name ?? ""} ${last_name ?? ""}`.trim(),
             imageUrl: image_url,
         };
 
         await connectDB();
-        await User.findByIdAndUpdate(id, userData);
+        try {
+            await User.findByIdAndUpdate(id, userData, { new: true });
+        } catch (err) {
+            console.error("Error updating user:", err);
+            throw err;
+        }
     }
 );
 
-// Function to sync user deletion
+// Sync user deletion
 export const syncUserDeletion = inngest.createFunction(
     { id: "delete-user-with-clerk" },
     { event: "clerk/user.deleted" },
@@ -49,6 +62,11 @@ export const syncUserDeletion = inngest.createFunction(
         const { id } = event.data;
 
         await connectDB();
-        await User.findByIdAndDelete(id);
+        try {
+            await User.findByIdAndDelete(id);
+        } catch (err) {
+            console.error("Error deleting user:", err);
+            throw err;
+        }
     }
 );
