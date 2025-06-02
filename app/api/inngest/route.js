@@ -1,10 +1,14 @@
+// app/api/inngest/route.ts (or .js if you're not using TypeScript)
+
 import { serve } from "inngest/next";
 import { inngest, syncUserCreation, syncUserDeletion, syncUserUpdation } from "@/config/inngest";
 
-// Create an API that serves zero functions
+// Serve Inngest functions via API routes
 export const { GET, POST, PUT } = serve({
     client: inngest,
     functions: [
-        syncUserCreation, syncUserUpdation, syncUserDeletion
+        syncUserCreation,
+        syncUserUpdation,
+        syncUserDeletion,
     ],
 });
