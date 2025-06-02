@@ -2,7 +2,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import { AppContextProvider } from "@/context/AppContext";
 import { ClerkProvider } from "@clerk/nextjs";
-import ToasterClient from "@/components/ToasterClient"; // 👈 import client wrapper
+// import ToasterClient from "@/components/ToasterClient"; // 👈 import client wrapper
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500"] });
 
